@@ -11,17 +11,21 @@ window.addEventListener("DOMContentLoaded", function () {
 
     window.sdihkid = io()
 
-    // --- ИСПРАВЛЕННЫЙ ВВОД ИМЕНИ ---
-    // Всегда запрашиваем имя при заходе (игнорируем старое из localStorage)
-    let usrahh = prompt("Enter username to continue")
+    // --- ИСПРАВЛЕННАЯ ЛОГИКА ИМЕНИ (ЗАПОМИНАЕТ ПОСЛЕ ПЕРЕЗАГРУЗКИ) ---
+    let usrahh = localStorage.getItem('userID')
     
-    // Если нажали Cancel или оставили пустым, даем имя по умолчанию
+    // Если имя НЕ сохранено (первый заход) — запрашиваем
     if (!usrahh || usrahh.trim() === "") {
-        usrahh = "Guest"
+        usrahh = prompt("Enter username to continue")
+        
+        // Если нажали Cancel или оставили пустым, даем имя по умолчанию
+        if (!usrahh || usrahh.trim() === "") {
+            usrahh = "Guest"
+        }
+        
+        // Сохраняем в localStorage, чтобы при перезагрузке не спрашивать снова!
+        localStorage.setItem("userID", usrahh)
     }
-    
-    // Сохраняем в localStorage (чтобы запомнить для следующего раза, но окно будет появляться снова)
-    localStorage.setItem("userID", usrahh)
 
     // Генератор случайного, но постоянного цвета для имени
     function getColorForName(name) {
@@ -34,7 +38,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
     // --- ПОДКЛЮЧЕНИЕ К СЕРВЕРУ ---
     sdihkid.on('connect', function () {
-        // Отправляем объект {name: "Вася"}, как и требует ваш сервер
+        // Отправляем объект {name: "Вася"}
         sdihkid.emit('join', {name: usrahh})
     })
 
